@@ -554,9 +554,14 @@ func validateIntegerEntry(xRefTable *model.XRefTable, d types.Dict, dictName, en
 		return nil, err
 	}
 
-	i, ok := o.(types.Integer)
-	if !ok {
-		return nil, errors.Errorf("pdfcpu: validateIntegerEntry: dict=%s entry=%s invalid type", dictName, entryName)
+	var i types.Integer
+	switch n := o.(type) {
+	case types.Integer:
+		i = n
+	case types.Float:
+		i = types.Integer(int(n.Value()))
+	default:
+		return nil, errors.Errorf("pdfcpu: validateIntegerEntry: dict=%s entry=%s invalid type: %t", dictName, entryName, n)
 	}
 
 	// Validation
