@@ -21,10 +21,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pdfcpu/pdfcpu/pkg/filter"
-	"github.com/pdfcpu/pdfcpu/pkg/log"
-	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
-	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/types"
+	"github.com/tpolster/pdfcpu/pkg/filter"
+	"github.com/tpolster/pdfcpu/pkg/log"
+	"github.com/tpolster/pdfcpu/pkg/pdfcpu/model"
+	"github.com/tpolster/pdfcpu/pkg/pdfcpu/types"
 )
 
 func validateMetadataStream(xRefTable *model.XRefTable, d types.Dict, required bool, sinceVersion model.Version) (*types.StreamDict, error) {

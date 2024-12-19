@@ -26,11 +26,11 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/pdfcpu/pdfcpu/pkg/log"
-	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
-	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
-	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/types"
 	"github.com/pkg/errors"
+	"github.com/tpolster/pdfcpu/pkg/log"
+	"github.com/tpolster/pdfcpu/pkg/pdfcpu"
+	"github.com/tpolster/pdfcpu/pkg/pdfcpu/model"
+	"github.com/tpolster/pdfcpu/pkg/pdfcpu/types"
 )
 
 // ExtractImagesRaw returns []pdfcpu.Image containing io.Readers for images contained in selectedPages.

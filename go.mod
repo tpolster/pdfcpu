@@ -1,4 +1,4 @@
-module github.com/pdfcpu/pdfcpu
+module github.com/tpolster/pdfcpu
 
 go 1.22
 

@@ -20,10 +20,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/pdfcpu/pdfcpu/pkg/log"
-	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
-	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/types"
 	"github.com/pkg/errors"
+	"github.com/tpolster/pdfcpu/pkg/log"
+	"github.com/tpolster/pdfcpu/pkg/pdfcpu/model"
+	"github.com/tpolster/pdfcpu/pkg/pdfcpu/types"
 )
 
 // DocumentProperty ensures a property name that may be modified.

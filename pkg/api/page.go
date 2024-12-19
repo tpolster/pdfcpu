@@ -21,11 +21,11 @@ import (
 	"os"
 	"sort"
 
-	"github.com/pdfcpu/pdfcpu/pkg/log"
-	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu"
-	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
-	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/types"
 	"github.com/pkg/errors"
+	"github.com/tpolster/pdfcpu/pkg/log"
+	"github.com/tpolster/pdfcpu/pkg/pdfcpu"
+	"github.com/tpolster/pdfcpu/pkg/pdfcpu/model"
+	"github.com/tpolster/pdfcpu/pkg/pdfcpu/types"
 )
 
 // InsertPages inserts a blank page before or after every page selected of rs and writes the result to w.

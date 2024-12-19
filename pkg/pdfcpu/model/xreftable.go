@@ -29,11 +29,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pdfcpu/pdfcpu/pkg/filter"
-	"github.com/pdfcpu/pdfcpu/pkg/log"
-	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/scan"
-	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/types"
 	"github.com/pkg/errors"
+	"github.com/tpolster/pdfcpu/pkg/filter"
+	"github.com/tpolster/pdfcpu/pkg/log"
+	"github.com/tpolster/pdfcpu/pkg/pdfcpu/scan"
+	"github.com/tpolster/pdfcpu/pkg/pdfcpu/types"
 )
 
 var ErrNoContent = errors.New("pdfcpu: page without content")

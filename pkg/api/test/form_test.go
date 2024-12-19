@@ -21,9 +21,9 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/pdfcpu/pdfcpu/pkg/api"
-	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/form"
-	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
+	"github.com/tpolster/pdfcpu/pkg/api"
+	"github.com/tpolster/pdfcpu/pkg/pdfcpu/form"
+	"github.com/tpolster/pdfcpu/pkg/pdfcpu/model"
 )
 
 /**************************************************************

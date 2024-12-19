@@ -20,9 +20,9 @@ import (
 	"bytes"
 	"strconv"
 
-	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/color"
-	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/draw"
-	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/types"
+	"github.com/tpolster/pdfcpu/pkg/pdfcpu/color"
+	"github.com/tpolster/pdfcpu/pkg/pdfcpu/draw"
+	"github.com/tpolster/pdfcpu/pkg/pdfcpu/types"
 )
 
 type Resource struct {
