@@ -136,6 +136,10 @@ func StringLiteralToString(sl StringLiteral) (string, error) {
 	}
 	// if no acceptable UTF16 encoding found, ensure utf8 encoding.
 	bb = bytes.TrimPrefix(bb, []byte{239, 187, 191})
+	return toUTF8(bb), nil
+}
+
+func toUTF8(bb []byte) string {
 	s := string(bb)
 	if !utf8.ValidString(s) {
 		encs := []string{"cp1252", "iso8859-1", "iso8859-15"}
@@ -153,7 +157,7 @@ func StringLiteralToString(sl StringLiteral) (string, error) {
 			s = encStr
 		}
 	}
-	return s, nil
+	return s
 }
 
 // HexLiteralToString returns a possibly UTF16 encoded string for a hex string.
@@ -172,8 +176,7 @@ func HexLiteralToString(hl HexLiteral) (string, error) {
 	}
 
 	bb = bytes.TrimPrefix(bb, []byte{239, 187, 191})
-
-	return string(bb), nil
+	return toUTF8(bb), nil
 }
 
 func StringOrHexLiteral(obj Object) (*string, error) {
