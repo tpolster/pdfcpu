@@ -138,7 +138,20 @@ func StringLiteralToString(sl StringLiteral) (string, error) {
 	bb = bytes.TrimPrefix(bb, []byte{239, 187, 191})
 	s := string(bb)
 	if !utf8.ValidString(s) {
-		s = CP1252ToUTF8(s)
+		encs := []string{"cp1252", "iso8859-1", "iso8859-15"}
+		var encStr string
+		var codeErr error
+		for _, enc := range encs {
+			encStr, codeErr = ConvertToUTF8(bb, enc)
+			if codeErr == nil {
+				break
+			}
+		}
+		if codeErr != nil {
+			s = CP1252ToUTF8(s)
+		} else {
+			s = encStr
+		}
 	}
 	return s, nil
 }

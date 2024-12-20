@@ -17,8 +17,14 @@ limitations under the License.
 package types
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/hex"
+	"golang.org/x/text/encoding/charmap"
+	"golang.org/x/text/encoding/htmlindex"
+	"golang.org/x/text/encoding/unicode"
+	"golang.org/x/text/transform"
+	"io"
 	"strconv"
 	"strings"
 	"unicode/utf8"
@@ -201,6 +207,19 @@ func UTF8ToCP1252(s string) string {
 		bb = append(bb, byte(r))
 	}
 	return string(bb)
+}
+
+func ConvertToUTF8(b []byte, encoding string) (string, error) {
+	src := bufio.NewReader(bytes.NewReader(b))
+	coding, err := htmlindex.Get(encoding)
+	if err != nil {
+		coding = charmap.Windows1252
+	}
+	out := bytes.NewBufferString("")
+	fromStream := transform.NewReader(src, coding.NewDecoder())
+	toStream := transform.NewWriter(out, unicode.UTF8.NewEncoder())
+	_, err = io.Copy(toStream, fromStream)
+	return out.String(), err
 }
 
 // CP1252ToUTF8 converts CP1252 to UTF-8. Unused
