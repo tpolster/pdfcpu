@@ -111,8 +111,14 @@ func validateTimezoneSeparator(c byte) bool {
 }
 
 func parseTimezone(s string, relaxed bool) (h, m int, ok bool) {
+	offset := 14
+	o := s[offset]
 
-	o := s[14]
+	// in relaxed mode a date time without seconds or with only one digit as second is acceptable
+	for relaxed && !validateTimezoneSeparator(o) && offset > 12 {
+		offset -= 1
+		o = s[offset]
+	}
 
 	if !validateTimezoneSeparator(o) {
 		// Ignore timezone on corrupt timezone separator if relaxed.
@@ -126,14 +132,14 @@ func parseTimezone(s string, relaxed bool) (h, m int, ok bool) {
 	// 		"YYYYMMDDHHmmSSZ'0"
 
 	if o == 'Z' {
-		t := s[15:]
+		t := s[offset+1:]
 		if t == "" || relaxed && (t == "'" || t == "'0") {
 			return 0, 0, true
 		}
 	}
 
 	// HH'mm
-	s = s[15:]
+	s = s[offset+1:]
 	if s[0] == '-' {
 		s = s[1:]
 	}
@@ -291,16 +297,16 @@ func parseMinute(s string) (min int, finished, ok bool) {
 	return min, false, true
 }
 
-func parseSecond(s string) (sec int, finished, ok bool) {
+func parseSecond(s string, relaxed bool) (sec int, finished, ok bool) {
 	second := s[12:14]
 
 	sec, err := strconv.Atoi(second)
 	if err != nil {
-		return 0, false, false
+		return 0, false, relaxed
 	}
 
 	if sec > 59 {
-		return 0, false, false
+		return 0, false, relaxed
 	}
 
 	// "YYYYMMDDHHmmSS"
@@ -396,17 +402,17 @@ func DateTime(s string, relaxed bool) (time.Time, bool) {
 		return d, true
 	}
 
-	min, finished, ok := parseMinute(s)
+	mi, finished, ok := parseMinute(s)
 	if !ok {
 		return d, false
 	}
 
-	d = d.Add(time.Duration(min) * time.Minute)
+	d = d.Add(time.Duration(mi) * time.Minute)
 	if finished {
 		return d, true
 	}
 
-	sec, finished, ok := parseSecond(s)
+	sec, finished, ok := parseSecond(s, relaxed)
 	if !ok {
 		return d, false
 	}
@@ -423,7 +429,7 @@ func DateTime(s string, relaxed bool) (time.Time, bool) {
 	}
 
 	loc := time.FixedZone("", tzh*60*60+tzm*60)
-	d = time.Date(y, time.Month(m), day, h, min, sec, 0, loc)
+	d = time.Date(y, time.Month(m), day, h, mi, sec, 0, loc)
 
 	return d, true
 }

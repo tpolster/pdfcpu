@@ -25,7 +25,7 @@ func doParseDateTimeRelaxedOK(s string, t *testing.T) {
 	t.Helper()
 	if time, ok := DateTime(s, true); ok {
 		_ = time
-		//t.Logf("DateTime(%s) valid => %s\n", s, time)
+		t.Logf("DateTime(%s) valid => %s\n", s, time)
 	} else {
 		t.Errorf("DateTime(%s) invalid => not ok!\n", s)
 	}
@@ -153,6 +153,11 @@ func TestParseDateTime(t *testing.T) {
 	doParseDateTimeRelaxedOK(s, t)
 
 	s = "\357\273\277D:20160404061414+65'53'"
+	doParseDateTimeRelaxedOK(s, t)
+}
+
+func TestDateStringWithSingleDigitSecond(t *testing.T) {
+	s := "D:2025092513093+02'00'"
 	doParseDateTimeRelaxedOK(s, t)
 }
 
