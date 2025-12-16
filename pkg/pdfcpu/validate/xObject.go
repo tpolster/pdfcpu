@@ -739,7 +739,8 @@ func validateFormStreamDict(xRefTable *model.XRefTable, sd *types.StreamDict) er
 func validateXObjectType(xRefTable *model.XRefTable, sd *types.StreamDict) error {
 	ss := []string{"XObject"}
 	if xRefTable.ValidationMode == model.ValidationRelaxed {
-		ss = append(ss, "Xobject")
+		// some producer set type to Image
+		ss = append(ss, "Xobject", "Image")
 	}
 
 	n, err := validateNameEntry(xRefTable, sd.Dict, "xObjectStreamDict", "Type", OPTIONAL, model.V10, func(s string) bool { return types.MemberOf(s, ss) })
@@ -748,7 +749,7 @@ func validateXObjectType(xRefTable *model.XRefTable, sd *types.StreamDict) error
 	}
 
 	// Repair "Xobject" to "XObject".
-	if n != nil && *n == "Xobject" {
+	if n != nil && *n != "XObject" {
 		sd.Dict["Type"] = types.Name("XObject")
 	}
 
