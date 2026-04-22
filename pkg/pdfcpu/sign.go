@@ -23,10 +23,10 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
-	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/sign"
-	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/types"
 	"github.com/pkg/errors"
+	"github.com/tpolster/pdfcpu/pkg/pdfcpu/model"
+	"github.com/tpolster/pdfcpu/pkg/pdfcpu/sign"
+	"github.com/tpolster/pdfcpu/pkg/pdfcpu/types"
 )
 
 // ValidateSignatures validates all digital signatures of ctx.

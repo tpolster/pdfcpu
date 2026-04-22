@@ -25,9 +25,9 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
-	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/types"
 	"github.com/pkg/errors"
+	"github.com/tpolster/pdfcpu/pkg/pdfcpu/model"
+	"github.com/tpolster/pdfcpu/pkg/pdfcpu/types"
 )
 
 // ValidateX509RSASHA1Signature validates signatures using subFilter adbe.x509.rsa_sha1.

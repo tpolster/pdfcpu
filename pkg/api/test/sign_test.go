@@ -21,7 +21,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/pdfcpu/pdfcpu/pkg/api"
+	"github.com/tpolster/pdfcpu/pkg/api"
 )
 
 func logResults(ss []string) {

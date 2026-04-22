@@ -28,8 +28,8 @@ import (
 	"sync"
 
 	"github.com/hhrutter/pkcs7"
-	"github.com/pdfcpu/pdfcpu/pkg/pdfcpu/model"
 	"github.com/pkg/errors"
+	"github.com/tpolster/pdfcpu/pkg/pdfcpu/model"
 )
 
 var ErrUnknownFileType = errors.New("pdfcpu: unsupported file type")
