@@ -78,7 +78,7 @@ func TestParseDateTime(t *testing.T) {
 	doParseDateTimeOK(s, t)
 
 	s = "D:20170430155901Z"
-	doParseDateTimeOK(s, t)
+	doParseDateTimeRelaxedOK(s, t)
 
 	s = "D:20170430155901"
 	doParseDateTimeOK(s, t)
@@ -104,6 +104,9 @@ func TestParseDateTime(t *testing.T) {
 	s = "D:20210515103719-02'00"
 	doParseDateTimeOK(s, t)
 
+	s = "D:2025022513222+01'00'"
+	doParseDateTimeOK(s, t)
+
 	s = "D:20170430155901+66'A9"
 	doParseDateTimeFail(s, t)
 
@@ -111,6 +114,9 @@ func TestParseDateTime(t *testing.T) {
 	doParseDateTimeRelaxedOK(s, t)
 
 	s = "D:20230912144809Z'0"
+	doParseDateTimeRelaxedOK(s, t)
+
+	s = "20250718155751+"
 	doParseDateTimeRelaxedOK(s, t)
 
 	s = "20141117162446Z00'00'"

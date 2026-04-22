@@ -22,6 +22,33 @@ import (
 	"github.com/tpolster/pdfcpu/pkg/pdfcpu/types"
 )
 
+func validateDirection(xRefTable *model.XRefTable, d types.Dict, dictName string, vp *model.ViewerPreferences) error {
+	validate := func(s string) bool {
+		return types.MemberOf(s, []string{"L2R", "R2L"})
+	}
+
+	n, err := validateNameEntry(xRefTable, d, dictName, "Direction", OPTIONAL, model.V13, validate)
+	if err != nil {
+		if xRefTable.ValidationMode == model.ValidationStrict {
+			return err
+		}
+		s, err := validateStringEntry(xRefTable, d, dictName, "Direction", OPTIONAL, model.V13, validate)
+		if err != nil {
+			return err
+		}
+		if s != nil {
+			vp.Direction = model.DirectionFor(*s)
+		}
+		return nil
+	}
+
+	if n != nil {
+		vp.Direction = model.DirectionFor(n.String())
+	}
+
+	return nil
+}
+
 func validatePageBoundaries(xRefTable *model.XRefTable, d types.Dict, dictName string, vp *model.ViewerPreferences) error {
 	validate := func(s string) bool {
 		return types.MemberOf(s, []string{"MediaBox", "CropBox", "BleedBox", "TrimBox", "ArtBox"})
@@ -120,7 +147,10 @@ func validatePrinterPreferences(xRefTable *model.XRefTable, d types.Dict, dictNa
 	}
 	n, err := validateNameEntry(xRefTable, d, dictName, "PrintScaling", OPTIONAL, sinceVersion, validate)
 	if err != nil {
-		return err
+		if xRefTable.ValidationMode == model.ValidationStrict {
+			return err
+		}
+		// Ignore in relaxed mode.
 	}
 	if n != nil {
 		vp.PrintScaling = model.PrintScalingFor(n.String())
@@ -129,7 +159,11 @@ func validatePrinterPreferences(xRefTable *model.XRefTable, d types.Dict, dictNa
 	validate = func(s string) bool {
 		return types.MemberOf(s, []string{"Simplex", "DuplexFlipShortEdge", "DuplexFlipLongEdge"})
 	}
-	n, err = validateNameEntry(xRefTable, d, dictName, "Duplex", OPTIONAL, model.V17, validate)
+	sinceVersion = model.V17
+	if xRefTable.ValidationMode == model.ValidationRelaxed {
+		sinceVersion = model.V15
+	}
+	n, err = validateNameEntry(xRefTable, d, dictName, "Duplex", OPTIONAL, sinceVersion, validate)
 	if err != nil {
 		return err
 	}
@@ -137,12 +171,20 @@ func validatePrinterPreferences(xRefTable *model.XRefTable, d types.Dict, dictNa
 		vp.Duplex = model.PaperHandlingFor(n.String())
 	}
 
-	vp.PickTrayByPDFSize, err = validateFlexBooleanEntry(xRefTable, d, dictName, "PickTrayByPDFSize", OPTIONAL, model.V17)
+	sinceVersion = model.V17
+	if xRefTable.ValidationMode == model.ValidationRelaxed {
+		sinceVersion = model.V15
+	}
+	vp.PickTrayByPDFSize, err = validateFlexBooleanEntry(xRefTable, d, dictName, "PickTrayByPDFSize", OPTIONAL, sinceVersion)
 	if err != nil {
 		return err
 	}
 
-	vp.NumCopies, err = validateIntegerEntry(xRefTable, d, dictName, "NumCopies", OPTIONAL, model.V17, func(i int) bool { return i >= 1 })
+	sinceVersion = model.V17
+	if xRefTable.ValidationMode == model.ValidationRelaxed {
+		sinceVersion = model.V15
+	}
+	vp.NumCopies, err = validateIntegerEntry(xRefTable, d, dictName, "NumCopies", OPTIONAL, sinceVersion, func(i int) bool { return i >= 1 })
 	if err != nil {
 		return err
 	}
@@ -199,8 +241,29 @@ func validateViewerPreferences(xRefTable *model.XRefTable, rootDict types.Dict, 
 	dictName := "rootDict"
 
 	d, err := validateDictEntry(xRefTable, rootDict, dictName, "ViewerPreferences", required, sinceVersion, nil)
-	if err != nil || d == nil {
-		return err
+	if err != nil {
+		if xRefTable.ValidationMode == model.ValidationStrict {
+			return err
+		}
+		arr, err := validateArrayEntry(xRefTable, rootDict, dictName, "ViewerPreferences", required, sinceVersion, nil)
+		if err != nil || len(arr) == 0 {
+			return err
+		}
+		// For an out-of-spec viewer preferences array, we assume it only contains boolean flags set to true.
+		model.ShowDigestedSpecViolation("viewer preferences array instead of dict")
+		d = types.NewDict()
+		for _, v := range arr {
+			n, ok := v.(types.Name)
+			if !ok {
+				return errors.New("pdfcpu: corrupt viewer preferences")
+			}
+			d[n.Value()] = types.Boolean(true)
+		}
+		return nil
+	}
+
+	if d == nil {
+		return nil
 	}
 
 	vp := model.ViewerPreferences{}
@@ -212,8 +275,12 @@ func validateViewerPreferences(xRefTable *model.XRefTable, rootDict types.Dict, 
 		return err
 	}
 
+	vv := []string{"UseNone", "UseOutlines", "UseThumbs", "UseOC"}
+	if xRefTable.ValidationMode == model.ValidationRelaxed {
+		vv = append(vv, "PageOnly")
+	}
 	validate := func(s string) bool {
-		return types.MemberOf(s, []string{"UseNone", "UseOutlines", "UseThumbs", "UseOC"})
+		return types.MemberOf(s, vv)
 	}
 	n, err := validateNameEntry(xRefTable, d, dictName, "NonFullScreenPageMode", OPTIONAL, model.V10, validate)
 	if err != nil {
@@ -223,19 +290,8 @@ func validateViewerPreferences(xRefTable *model.XRefTable, rootDict types.Dict, 
 		vp.NonFullScreenPageMode = (*model.NonFullScreenPageMode)(model.PageModeFor(n.String()))
 	}
 
-	validate = func(s string) bool { return types.MemberOf(s, []string{"L2R", "R2L"}) }
-	n, err = validateNameEntry(xRefTable, d, dictName, "Direction", OPTIONAL, model.V13, validate)
-	if err != nil {
-		s, err := validateStringEntry(xRefTable, d, dictName, "Direction", OPTIONAL, model.V13, validate)
-		if err != nil {
-			return err
-		}
-		if s != nil {
-			vp.Direction = model.DirectionFor(*s)
-		}
-	}
-	if vp.Direction == nil && n != nil {
-		vp.Direction = model.DirectionFor(n.String())
+	if err := validateDirection(xRefTable, d, dictName, &vp); err != nil {
+		return err
 	}
 
 	if err := validatePageBoundaries(xRefTable, d, dictName, &vp); err != nil {

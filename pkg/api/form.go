@@ -520,6 +520,7 @@ func FillForm(rs io.ReadSeeker, rd io.Reader, w io.Writer, conf *model.Configura
 		return err
 	}
 
+	// TODO not necessarily so
 	ctx.RemoveSignature()
 
 	var buf bytes.Buffer
@@ -549,16 +550,19 @@ func FillForm(rs io.ReadSeeker, rd io.Reader, w io.Writer, conf *model.Configura
 		return err
 	}
 
-	if log.CLIEnabled() {
-		log.CLI.Println("filling...")
-	}
-
 	ok, pp, err := form.FillForm(ctx, form.FillDetails(&f, nil), f.Pages, form.JSON)
 	if err != nil {
 		return err
 	}
 	if !ok {
+		if log.CLIEnabled() {
+			log.CLI.Println("nothing written")
+		}
 		return ErrNoFormFieldsAffected
+	}
+
+	if log.CLIEnabled() {
+		log.CLI.Println("filling...")
 	}
 
 	if err := fillPostProc(ctx, pp); err != nil {

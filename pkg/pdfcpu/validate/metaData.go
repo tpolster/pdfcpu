@@ -22,14 +22,13 @@ import (
 	"time"
 
 	"github.com/tpolster/pdfcpu/pkg/filter"
-	"github.com/tpolster/pdfcpu/pkg/log"
 	"github.com/tpolster/pdfcpu/pkg/pdfcpu/model"
 	"github.com/tpolster/pdfcpu/pkg/pdfcpu/types"
 )
 
 func validateMetadataStream(xRefTable *model.XRefTable, d types.Dict, required bool, sinceVersion model.Version) (*types.StreamDict, error) {
 	if xRefTable.ValidationMode == model.ValidationRelaxed {
-		sinceVersion = model.V12
+		sinceVersion = model.V10
 	}
 
 	sd, err := validateStreamDictEntry(xRefTable, d, "dict", "Metadata", required, sinceVersion, nil)
@@ -90,7 +89,7 @@ func catalogMetaData(xRefTable *model.XRefTable, rootDict types.Dict, required b
 		if xRefTable.ValidationMode == model.ValidationStrict {
 			return nil, err
 		}
-		log.CLI.Println("ignoring metadata parse error")
+		model.ShowSkipped("metadata parse error")
 		return nil, nil
 	}
 
