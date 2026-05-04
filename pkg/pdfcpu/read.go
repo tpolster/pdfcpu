@@ -182,6 +182,7 @@ func offsetLastXRefSection(ctx *model.Context, skip int64) (*int64, error) {
 		prevBuf, workBuf []byte
 		bufSize          int64 = 512
 		offset           int64
+		invalidStartXref bool
 	)
 
 	if ctx.Read.FileSize < bufSize {
@@ -210,6 +211,14 @@ func offsetLastXRefSection(ctx *model.Context, skip int64) (*int64, error) {
 			workBuf = append(curBuf, prevBuf...)
 		}
 
+		if invalidStartXref {
+			if r := strings.Index(string(workBuf), "xref"); r != -1 {
+				realPos := off + int64(r)
+				log.Read.Printf("found xref at %d\n", realPos)
+				return &realPos, nil
+			}
+		}
+
 		j := strings.LastIndex(string(workBuf), "startxref")
 		if j == -1 {
 			prevBuf = curBuf
@@ -226,12 +235,17 @@ func offsetLastXRefSection(ctx *model.Context, skip int64) (*int64, error) {
 		}
 
 		p = p[:posEOF]
+		log.Read.Printf("startxref reading %s", p)
 		offset, err = strconv.ParseInt(strings.TrimSpace(string(p)), 10, 64)
 		if err != nil {
 			return nil, errors.New("pdfcpu: invalid last xref section")
 		}
 		if offset >= ctx.Read.FileSize {
 			offset = 0
+		}
+		if offset == 0 {
+			log.Read.Println("invalid startxref ... continue scanning for xref")
+			invalidStartXref = true
 		}
 	}
 
